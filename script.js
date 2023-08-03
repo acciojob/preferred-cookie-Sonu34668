@@ -1,35 +1,35 @@
 //your JS code here. If required.
-const form = document.getElementById("form");
-const fontSizeInput = document.getElementById("font-size");
-const fontColorInput = document.getElementById("font-color");
+// Get form elements
+const fontSizeInput = document.getElementById("fontsize");
+const fontColorInput = document.getElementById("fontcolor");
+const saveButton = document.querySelector("input[type='submit']");
 
-const defaultFontSize = 16;
-const defaultFontColor = "#000000";
-
-let fontSize = defaultFontSize;
-let fontColor = defaultFontColor;
-
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  fontSize = fontSizeInput.value;
-  fontColor = fontColorInput.value;
-
-  // Store the user's preferences in a cookie
-  const cookie = {
-    fontSize: fontSize,
-    fontColor: fontColor,
-  };
-  document.cookie = JSON.stringify(cookie);
-});
-
-// Get the user's preferences from the cookie
+// Load saved preferences from cookies
 if (document.cookie) {
-  const cookie = JSON.parse(document.cookie);
-  fontSize = cookie.fontSize;
-  fontColor = cookie.fontColor;
+  const preferences = document.cookie.split(";").reduce((acc, cookie) => {
+    const [key, value] = cookie.split("=");
+    acc[key.trim()] = value.trim();
+    return acc;
+  }, {});
+
+  if (preferences.fontSize) {
+    fontSizeInput.value = preferences.fontSize;
+    document.documentElement.style.setProperty("--fontsize", preferences.fontSize + "px");
+  }
+
+  if (preferences.fontColor) {
+    fontColorInput.value = preferences.fontColor;
+    document.documentElement.style.setProperty("--fontcolor", preferences.fontColor);
+  }
 }
 
-// Set the font size and color
-document.body.style.fontSize = fontSize + "px";
-document.body.style.color = fontColor;
+// Save preferences to cookies on form submit
+saveButton.addEventListener("click", (event) => {
+  event.preventDefault();
+  const fontSize = fontSizeInput.value;
+  const fontColor = fontColorInput.value;
+  document.documentElement.style.setProperty("--fontsize", fontSize + "px");
+  document.documentElement.style.setProperty("--fontcolor", fontColor);
+  document.cookie = `fontSize=${fontSize}; expires=${new Date(Date.now() + 86400000).toUTCString()}`;
+  document.cookie = `fontColor=${fontColor}; expires=${new Date(Date.now() + 86400000).toUTCString()}`;
+});
